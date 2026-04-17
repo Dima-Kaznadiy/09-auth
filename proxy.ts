@@ -1,6 +1,5 @@
 
 
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { checkSession } from '@/lib/api/serverApi';
@@ -19,31 +18,43 @@ export async function proxy(request: NextRequest) {
 
     let isAuthenticated = false;
 
-
     if (accessToken) {
         isAuthenticated = true;
     }
 
-    // 🔥 REFRESH ЛОГІКА
+    // 🔥 REFRESH
     if (!accessToken && refreshToken) {
         try {
             const data = await checkSession();
 
             isAuthenticated = true;
 
+            // ❗ якщо треба редірект — робимо його з куками
+            if (isAuthPage) {
+                const redirectResponse = NextResponse.redirect(
+                    new URL('/', request.url)
+                );
+
+                if (data.data?.accessToken) {
+                    redirectResponse.cookies.set('accessToken', data.data.accessToken);
+                }
+
+                if (data.data?.refreshToken) {
+                    redirectResponse.cookies.set('refreshToken', data.data.refreshToken);
+                }
+
+                return redirectResponse;
+            }
+
+            // ❗ якщо НЕ редірект — звичайний response
             const response = NextResponse.next();
 
-            if (data?.data.accessToken) {
+            if (data.data?.accessToken) {
                 response.cookies.set('accessToken', data.data.accessToken);
             }
 
-            if (data?.data.refreshToken) {
+            if (data.data?.refreshToken) {
                 response.cookies.set('refreshToken', data.data.refreshToken);
-            }
-
-
-            if (isAuthPage) {
-                return NextResponse.redirect(new URL('/', request.url));
             }
 
             return response;
@@ -52,12 +63,12 @@ export async function proxy(request: NextRequest) {
         }
     }
 
-
+    // ❌ не авторизований
     if (!isAuthenticated && isPrivatePage) {
         return NextResponse.redirect(new URL('/sign-in', request.url));
     }
 
-    // ❗ авторизований НЕ має бути на auth сторінках
+    // ❗ авторизований не має бути на auth сторінках
     if (isAuthenticated && isAuthPage) {
         return NextResponse.redirect(new URL('/', request.url));
     }
