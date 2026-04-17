@@ -29,3 +29,47 @@ export const updateMe = async (data: { username: string }) => {
     const res = await instance.patch('/users/me', data);
     return res.data;
 };
+
+
+
+export const fetchNotes = async ({
+    page,
+    search,
+    tag,
+}: {
+    page: number;
+    search: string;
+    tag: string;
+}) => {
+    const res = await instance.get('/notes', {
+        params: {
+            page,
+            perPage: 12,
+            search,
+            tag: tag === 'all' ? undefined : tag,
+        },
+    });
+
+    return res.data;
+};
+
+
+export const fetchNoteById = async (id: string) => {
+    const res = await instance.get(`/notes/${id}`);
+    return res.data;
+};
+
+
+export const createNote = async (data: {
+    title: string;
+    content: string;
+    tag: string;
+}) => {
+    const res = await instance.post('/notes', data);
+    return res.data;
+};
+
+
+export const deleteNote = async (id: string) => {
+    await instance.delete(`/notes/${id}`);
+};

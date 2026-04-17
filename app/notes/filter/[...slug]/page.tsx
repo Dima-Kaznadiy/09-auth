@@ -43,7 +43,7 @@
 
 import NotesClient from './Notes.client';
 import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api/api';
+import { fetchNotes } from '@/lib/api/clientApi';
 import type { NoteTag } from '@/types/note';
 import type { Metadata } from 'next';
 
@@ -73,7 +73,6 @@ export async function generateMetadata({
     };
 }
 
-// 🔥 PAGE
 export default async function Page({
     params,
 }: {
@@ -86,10 +85,11 @@ export default async function Page({
     const queryClient = new QueryClient();
 
     await queryClient.prefetchQuery({
-        queryKey: ['notes', tag],
+        queryKey: ['notes', tag, 1, ''], // ✅ виправлено
         queryFn: () =>
             fetchNotes({
                 page: 1,
+                search: '', // ✅ ОБОВʼЯЗКОВО
                 tag,
             }),
     });
