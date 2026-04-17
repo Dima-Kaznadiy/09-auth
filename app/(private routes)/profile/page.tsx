@@ -3,7 +3,7 @@ import { getMe } from '@/lib/api/serverApi';
 
 export default async function ProfilePage() {
     const cookieStore = await cookies();
-    const data = await getMe(cookieStore);
+    const data = await getMe();
 
     return (
         <div>
