@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api';
+import { fetchNotes } from '@/lib/api/api';
 import type { NoteTag } from '@/types/note';
 
 import NoteList from '@/components/NoteList/NoteList';

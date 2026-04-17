@@ -5,6 +5,7 @@ import { Roboto } from 'next/font/google';
 
 import './globals.css';
 
+import AuthProvider from '@/components/AuthProvider/AuthProvider';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import TanStackProvider from '@/components/TanStackProvider/TanStackProvider';
@@ -47,10 +48,10 @@ export default function RootLayout({
 
       <body className={roboto.variable}>
         <TanStackProvider>
-          <Header />
-          {children}
-          <Footer />
-          {modal}
+          <AuthProvider>
+            <Header />
+            {children}
+          </AuthProvider>
         </TanStackProvider>
 
         {/* modal portal */}
