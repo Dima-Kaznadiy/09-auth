@@ -24,3 +24,8 @@ export const checkSession = async () => {
     const res = await instance.get('/auth/session');
     return res.data;
 };
+
+export const updateMe = async (data: { username: string }) => {
+    const res = await instance.patch('/users/me', data);
+    return res.data;
+};
