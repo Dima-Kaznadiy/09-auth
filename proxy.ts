@@ -1,28 +1,5 @@
-// import { NextResponse } from 'next/server';
-// import type { NextRequest } from 'next/server';
 
 
-// export function proxy(request: NextRequest) {
-//     const isAuth = request.cookies.get('token');
-
-//     const isAuthPage =
-//         request.nextUrl.pathname.startsWith('/sign-in') ||
-//         request.nextUrl.pathname.startsWith('/sign-up');
-
-//     const isPrivatePage =
-//         request.nextUrl.pathname.startsWith('/profile') ||
-//         request.nextUrl.pathname.startsWith('/notes');
-
-//     if (!isAuth && isPrivatePage) {
-//         return NextResponse.redirect(new URL('/sign-in', request.url));
-//     }
-
-//     if (isAuth && isAuthPage) {
-//         return NextResponse.redirect(new URL('/profile', request.url));
-//     }
-
-//     return NextResponse.next();
-// }
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
@@ -42,12 +19,12 @@ export async function proxy(request: NextRequest) {
 
     let isAuthenticated = false;
 
-    // 🔥 якщо є accessToken → вважаємо що залогінений
+
     if (accessToken) {
         isAuthenticated = true;
     }
 
-    // 🔥 якщо немає accessToken але є refresh → пробуємо відновити сесію
+    // 🔥 REFRESH ЛОГІКА
     if (!accessToken && refreshToken) {
         try {
             const data = await checkSession();
@@ -56,13 +33,17 @@ export async function proxy(request: NextRequest) {
 
             const response = NextResponse.next();
 
-            // 🔥 оновлюємо куки якщо сервер повернув нові
-            if (data?.accessToken) {
-                response.cookies.set('accessToken', data.accessToken);
+            if (data?.data.accessToken) {
+                response.cookies.set('accessToken', data.data.accessToken);
             }
 
-            if (data?.refreshToken) {
-                response.cookies.set('refreshToken', data.refreshToken);
+            if (data?.data.refreshToken) {
+                response.cookies.set('refreshToken', data.data.refreshToken);
+            }
+
+
+            if (isAuthPage) {
+                return NextResponse.redirect(new URL('/', request.url));
             }
 
             return response;
@@ -71,14 +52,14 @@ export async function proxy(request: NextRequest) {
         }
     }
 
-    // ❌ не авторизований → редірект
+
     if (!isAuthenticated && isPrivatePage) {
         return NextResponse.redirect(new URL('/sign-in', request.url));
     }
 
-    // 🔥 авторизований → НЕ пускаємо на auth сторінки
+    // ❗ авторизований НЕ має бути на auth сторінках
     if (isAuthenticated && isAuthPage) {
-        return NextResponse.redirect(new URL('/', request.url)); // ✅ ВАЖЛИВО
+        return NextResponse.redirect(new URL('/', request.url));
     }
 
     return NextResponse.next();

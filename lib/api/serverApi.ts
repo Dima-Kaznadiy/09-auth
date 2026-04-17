@@ -4,8 +4,9 @@ import { instance } from './api';
 import { cookies } from 'next/headers';
 import type { User } from '@/types/user';
 import type { Note, NoteTag } from '@/types/note';
+import type { AxiosResponse } from 'axios';
 
-
+// 🔥 GET USER
 export const getMe = async (): Promise<User> => {
     const cookieStore = await cookies();
 
@@ -21,11 +22,10 @@ export const getMe = async (): Promise<User> => {
     return res.data;
 };
 
-
-export const checkSession = async (): Promise<{
-    accessToken: string;
-    refreshToken: string;
-}> => {
+// 🔥 FIXED checkSession
+export const checkSession = async (): Promise<
+    AxiosResponse<{ accessToken: string; refreshToken: string }>
+> => {
     const cookieStore = await cookies();
 
     const accessToken = cookieStore.get('accessToken')?.value;
@@ -40,10 +40,10 @@ export const checkSession = async (): Promise<{
         },
     });
 
-    return res.data;
+    return res; // ✅ ГОЛОВНЕ ВИПРАВЛЕННЯ
 };
 
-
+// 🔥 GET NOTES
 export const fetchNotes = async ({
     page,
     search,
@@ -76,7 +76,7 @@ export const fetchNotes = async ({
     return res.data;
 };
 
-
+// 🔥 GET NOTE BY ID
 export const fetchNoteByIdServer = async (id: string): Promise<Note> => {
     const cookieStore = await cookies();
 
