@@ -74,11 +74,13 @@ export default function NotesClient({ tag }: Props) {
             )}
 
 
-            <Pagination
-                totalPages={data.totalPages}
-                currentPage={page}
-                onPageChange={handlePageChange}
-            />
+            {data?.notes?.length > 0 && (
+                <Pagination
+                    totalPages={data.totalPages}
+                    currentPage={page}
+                    onPageChange={setPage}
+                />
+            )}
         </div>
     );
 }
